@@ -7,9 +7,11 @@ public class ClampName : MonoBehaviour
 {
 
     public GameObject textPrefab;
+    string theText = "null";
     
     public void generateNameLabel(GameObject obj, string nameString)
     {
+        theText = nameString;
         Vector3 nextPosition = obj.transform.position;
         GameObject tempTextBox = Instantiate(textPrefab, nextPosition, transform.rotation);
 
@@ -19,5 +21,10 @@ public class ClampName : MonoBehaviour
         //set target and text
         tempTextBox.GetComponent<NameLabel>().setTarget(obj);
         tempTextBox.GetComponent<NameLabel>().setName(nameString);
+    }
+
+    public string GetNameText()
+    {
+        return theText;
     }
 }

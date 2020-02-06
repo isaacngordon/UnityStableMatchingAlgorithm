@@ -9,8 +9,10 @@ public class Mate : MonoBehaviour
     int[] potentialPartnerRatings;
     int numPotentials;
     GameObject partner;
-    bool hasPartner;
-    int index;
+    Vector3 ip;
+
+    bool hasPartner = false;
+    int index = 0;
 
     // Update is called once per frame
     void Update()
@@ -18,9 +20,29 @@ public class Mate : MonoBehaviour
         
     }
 
+    public void SetInitialPosition(Vector3 initial)
+    {
+        ip = initial;
+    }
+
+    public Vector3 GetInitialPosition()
+    {
+        return ip;
+    }
+
+    public void SetListOfPartners(GameObject[] arr)
+    {
+        potentialPartners = arr; 
+    }
+
+    public GameObject GetPartner()
+    {
+        return partner;
+    }
+
     public void Rate(GameObject[] partners)
     {
-        potentialPartners = partners;
+        potentialPartners = (UnityEngine.GameObject[])partners.Clone();
         numPotentials = partners.Length;
         index = 0;
 
@@ -30,10 +52,11 @@ public class Mate : MonoBehaviour
             potentialPartnerRatings[i] = RatePartner(potentialPartners[i]);
         }
 
+
         SortPartners();
     }
 
-    //sort partners 
+    //sort partners by rating
     void SortPartners()
     {
         
@@ -51,6 +74,7 @@ public class Mate : MonoBehaviour
                 Merge(objArr, rateArry, left, m, right);
 
             }
+            //Debug.Log("Partner: " + potentialPartners.ToString() + " Ratings: " + potentialPartnerRatings.ToString());
 
         }//MergeSort
 
@@ -135,9 +159,114 @@ public class Mate : MonoBehaviour
 
     }
 
-    //TODO: Rates a partner based on prefferred genes.... until then random ratings
+    //TODO: Rates a partner based on preferred genes.... until then random ratings
     int RatePartner(GameObject potential)
     {
         return Random.Range(0, 101);
     }
+
+    public bool FindSomePartner()
+    {
+        if (hasPartner) return true;
+
+        //if (potentialPartners[1] == null)
+        //{
+        //    throw new System.Exception("ooooweeeee");
+        //}
+
+        //get next potential partner
+        //move to her
+        //propose to her
+        //if she says yes, both move to center-ish
+        //else increment index and return false;
+
+        //get next potential
+        GameObject potential = potentialPartners[index];
+
+        //move near to potential
+        Vector3 fp = potential.transform.position;
+        Vector3 newPos = (-fp.normalized) + fp;
+        this.transform.position = newPos;
+
+        //propose
+        bool success = potential.GetComponent<Mate>().InspectProposal(gameObject);
+        if (success)
+        {
+            partner = potential;
+            hasPartner = true;
+
+            ////Update positions of this and partner
+            //Vector3 fp = partner.transform.position;
+            //Vector3 newPos = (-fp.normalized) + fp;
+            //this.transform.position = newPos;
+        }
+        else
+        {
+            hasPartner = false;
+            index++;
+
+            //move this back to its original position
+            transform.position = ip;
+        }
+
+        return success;
+    }
+
+    public bool InspectProposal(GameObject proposer)
+    {
+
+        //if(potentialPartners[1] == null)
+        //{
+        //    throw new System.Exception();
+        //}
+
+        // if this mate has a partner
+        if (hasPartner)
+        {
+            // see if the proposer precedes the currentPartner in potentialPartners
+            // since array is sorted by rating, we can iterate until current partner's index
+            for (int k = 0; k < index; k++)
+            {
+                //if proposer has been found, the proposer is preferred to the cuttent partner
+                if (proposer == potentialPartners[k])
+                {
+                    // success
+
+                    // ditch current partner, send him pack to his initial position
+                    partner.GetComponent<Mate>().hasPartner = false;
+                    partner.GetComponent<Mate>().index++;
+                    partner.transform.position = partner.GetComponent<Mate>().GetInitialPosition();
+
+                    //take new partner
+                    index = k;
+                    hasPartner = true;
+                    partner = proposer;
+                    return true;
+                }
+            } 
+        }
+
+        else
+        {
+            //else no partner, accept
+            for (int k = 0; k < potentialPartners.Length; k++)
+            {
+                if (proposer == potentialPartners[k])
+                {
+                    index = k;
+                    break;
+                }
+            }
+            hasPartner = true;
+            partner = proposer;
+            return true;
+        }
+
+        //otherwise return false
+        return false;
+    }
+
+   
+
+
 }

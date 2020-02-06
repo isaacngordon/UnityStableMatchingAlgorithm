@@ -301,4 +301,5 @@
 /define:CSHARP_7_3_OR_NEWER
 "Assets/Scripts/ClampName.cs"
 "Assets/Scripts/Mate.cs"
+"Assets/Scripts/NameLabel.cs"
 "Assets/Scripts/Simulate.cs"
